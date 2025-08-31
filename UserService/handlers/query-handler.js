@@ -1,4 +1,4 @@
-const Mongodb = require('./../config/db');
+const Mongodb = require('../config/db');
 
 class QueryHandler {
   constructor() {
@@ -29,7 +29,6 @@ class QueryHandler {
       }
     });
   }
-
 
   getUserDetails(userId) {
     return new Promise(async (resolve, reject) => {

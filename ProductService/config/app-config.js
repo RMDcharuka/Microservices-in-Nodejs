@@ -3,7 +3,7 @@
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const ExpressConfigModule = require('./express-config');
-const JWT = require('./../utils/jwt');
+const JWT = require('../utils/jwt');
 
 class AppConfig {
   constructor(app) {

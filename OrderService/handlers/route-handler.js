@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
-const helper = require('./../handlers/query-handler');
-const CONSTANTS = require('./../config/constants');
+const helper = require('./query-handler');
+const CONSTANTS = require('../config/constants');
 
 class RouteHandler {
   async createOrderRouteHandler(request, response) {

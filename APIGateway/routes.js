@@ -31,7 +31,6 @@ class Routes {
       productServiceProxy(req, res);
     });
 
-
     this.app.post('/order', (req, res) => {
       orderServiceProxy(req, res);
     });
