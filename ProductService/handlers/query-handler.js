@@ -1,11 +1,12 @@
 /*
-* Building Micro Services in Nodejs
-* @author Shashank Tiwari
-*/
+ * Building Micro Services in Nodejs
+ * @author Shashank Tiwari
+ */
+
+const { onConnect } = require('../config/db'); // require at top level
 
 class QueryHandler {
   constructor() {
-    this.Mongodb = require('../config/db');
     this.projectedKeys = {
       name: true,
       price: true,
@@ -18,65 +19,39 @@ class QueryHandler {
   }
 
   /*
-	* Name of the Method : getProductDetail
-	* Description : Fetchs the product  details using product id
-	* Parameter :
-	*		1) product Id<string>
-	* Return : Promise<ProductDetail>
-	*/
-  getProductDetail(productId) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const [DB, ObjectID, DBClient] = await this.Mongodb.onConnect();
-        DB.collection('product').aggregate([
-          {
-            $match: { _id: ObjectID(productId) },
-          },
-          {
-            $project: this.projectedKeys,
-          },
-        ]).toArray((error, result) => {
-          DBClient.close();
-          if (error) {
-            reject(error);
-          }
-          let userDetails = null;
-          if (result.length > 0) {
-            userDetails = result[0];
-          }
-          resolve(userDetails);
-        });
-      } catch (error) {
-        reject(error);
-      }
-    });
+   * Name of the Method : getProductDetail
+   * Description : Fetches the product details using product id
+   * Parameter :
+   *   1) productId <string>
+   * Return : Promise<ProductDetail>
+   */
+  async getProductDetail(productId) {
+    const [DB, ObjectID, DBClient] = await onConnect();
+    const result = await DB.collection('product')
+      .aggregate([
+        { $match: { _id: ObjectID(productId) } },
+        { $project: this.projectedKeys },
+      ])
+      .toArray();
+
+    DBClient.close();
+    return result.length > 0 ? result[0] : null;
   }
 
   /*
-	* Name of the Method : getProductDetail
-	* Description : Fetchs the lis of products
-	* Parameter : None
-	* Return : Promise<ProductDetail>
-	*/
-  getProducts() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const [DB, ObjectID, DBClient] = await this.Mongodb.onConnect();
-        DB.collection('product').aggregate([{
-          $project: this.projectedKeys,
-        },
-        ]).toArray((err, result) => {
-          DBClient.close();
-          if (err) {
-            reject(err);
-          } else {
-            resolve(result);
-          }
-        });
-      } catch (error) {
-        reject(error);
-      }
-    });
+   * Name of the Method : getProducts
+   * Description : Fetches the list of products
+   * Parameter : None
+   * Return : Promise<ProductDetail[]>
+   */
+  async getProducts() {
+    const [DB, , DBClient] = await onConnect();
+    const result = await DB.collection('product')
+      .aggregate([{ $project: this.projectedKeys }])
+      .toArray();
+
+    DBClient.close();
+    return result;
   }
 }
 
