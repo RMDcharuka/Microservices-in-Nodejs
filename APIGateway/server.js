@@ -1,31 +1,64 @@
 /* eslint-disable no-console */
 const express = require('express');
-const http = require('http');
+const bodyParser = require('body-parser');
+const httpProxy = require('express-http-proxy');
 
-const Routes = require('./routes');
+const app = express();
+app.use(bodyParser.json());
 
-class Server {
-  constructor() {
-    this.app = express();
-    this.http = http.Server(this.app);
-  }
+// --------------------
+// Microservice proxies
+// --------------------
+const userServiceProxy = httpProxy('http://userservice:3002', {
+  proxyReqOptDecorator: (proxyReqOpts, srcReq) => ({
+    ...proxyReqOpts,
+    headers: {
+      ...proxyReqOpts.headers,
+      Authorization: srcReq.headers.authorization || '',
+    },
+  }),
+});
 
-  /* Including app Routes starts */
-  includeRoutes() {
-    new Routes(this.app).routesConfig();
-  }
-  /* Including app Routes ends */
+const productServiceProxy = httpProxy('http://productservice:3001', {
+  proxyReqOptDecorator: (proxyReqOpts, srcReq) => ({
+    ...proxyReqOpts,
+    headers: {
+      ...proxyReqOpts.headers,
+      Authorization: srcReq.headers.authorization || '',
+    },
+  }),
+});
 
-  startTheServer() {
-    this.includeRoutes();
+const orderServiceProxy = httpProxy('http://orderservice:3000', {
+  proxyReqOptDecorator: (proxyReqOpts, srcReq) => ({
+    ...proxyReqOpts,
+    headers: {
+      ...proxyReqOpts.headers,
+      Authorization: srcReq.headers.authorization || '',
+    },
+  }),
+});
 
-    const port = process.env.NODE_SERVER_POST || 8000;
-    const host = process.env.NODE_SERVER_HOST || 'localhost';
+// --------------------
+// Routes
+// --------------------
+app.get('/getUserDetails/:userId', (req, res) => userServiceProxy(req, res));
+app.post('/register', (req, res) => userServiceProxy(req, res));
+app.post('/login', (req, res) => userServiceProxy(req, res));
+app.get('/product/:productId', (req, res) => productServiceProxy(req, res));
+app.get('/product', (req, res) => productServiceProxy(req, res));
+app.post('/order', (req, res) => orderServiceProxy(req, res));
+app.get('/order', (req, res) => orderServiceProxy(req, res));
 
-    this.http.listen(port, host, () => {
-      console.log(`Listening on http://${host}:${port}`);
-    });
-  }
+// --------------------
+// Start server if run directly
+// --------------------
+if (require.main === module) {
+  const PORT = process.env.PORT || 8085;
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`API Gateway listening on port ${PORT}`);
+  });
 }
 
-module.exports = new Server();
+// Export app for Jest / Supertest
+module.exports = app;

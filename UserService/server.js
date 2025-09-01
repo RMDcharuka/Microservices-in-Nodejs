@@ -15,23 +15,24 @@ class Server {
     new AppConfig(this.app).includeConfig();
   }
 
-  /* Including app Routes starts */
   includeRoutes() {
     new Routes(this.app).routesConfig();
   }
-  /* Including app Routes ends */
 
   startTheServer() {
     this.appConfig();
     this.includeRoutes();
 
-    const port = process.env.NODE_SERVER_POST || 4000;
-    const host = process.env.NODE_SERVER_HOST || 'localhost';
-
-    this.http.listen(port, host, () => {
-      console.log(`Listening on http://${host}:${port}`);
+    const port = process.env.PORT || 3002; // matches Docker Compose
+    this.http.listen(port, '0.0.0.0', () => {
+      console.log(`Userservice listening on port ${port}`);
     });
   }
 }
 
-module.exports = new Server();
+// ✅ Start the server when this file is run directly
+const server = new Server();
+server.startTheServer();
+
+module.exports = server;
+

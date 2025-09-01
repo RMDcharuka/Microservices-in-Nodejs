@@ -1,48 +1,80 @@
+/* eslint-disable no-console */
+const express = require('express');
+const bodyParser = require('body-parser');
 const httpProxy = require('express-http-proxy');
 
-const userServiceProxy = httpProxy('http://localhost:4000');
-const productServiceProxy = httpProxy('http://localhost:3000');
-const orderServiceProxy = httpProxy('http://localhost:2000');
+const router = express.Router();
+router.use(bodyParser.json());
 
-class Routes {
-  constructor(app) {
-    this.app = app;
-  }
+// --------------------
+// Microservice proxies
+// --------------------
+const userServiceProxy = httpProxy('http://userservice:3002', {
+  proxyReqOptDecorator: (proxyReqOpts, srcReq) => ({
+    ...proxyReqOpts,
+    headers: {
+      ...proxyReqOpts.headers,
+      Authorization: srcReq.headers.authorization || '',
+    },
+  }),
+});
 
-  /* creating app Routes starts */
-  appRoutes() {
-    this.app.get('/getUserDetails/:userId', (req, res) => {
-      userServiceProxy(req, res);
-    });
+const productServiceProxy = httpProxy('http://productservice:3001', {
+  proxyReqOptDecorator: (proxyReqOpts, srcReq) => ({
+    ...proxyReqOpts,
+    headers: {
+      ...proxyReqOpts.headers,
+      Authorization: srcReq.headers.authorization || '',
+    },
+  }),
+});
 
-    this.app.post('/register', (req, res) => {
-      userServiceProxy(req, res);
-    });
+const orderServiceProxy = httpProxy('http://orderservice:3000', {
+  proxyReqOptDecorator: (proxyReqOpts, srcReq) => ({
+    ...proxyReqOpts,
+    headers: {
+      ...proxyReqOpts.headers,
+      Authorization: srcReq.headers.authorization || '',
+    },
+  }),
+});
 
-    this.app.post('/login', (req, res) => {
-      userServiceProxy(req, res);
-    });
+// --------------------
+// Routes
+// --------------------
+router.get(
+  '/getUserDetails/:userId',
+  (req, res) => userServiceProxy(req, res),
+);
 
-    this.app.get('/product/:productId', (req, res) => {
-      productServiceProxy(req, res);
-    });
+router.post(
+  '/register',
+  (req, res) => userServiceProxy(req, res),
+);
 
-    this.app.get('/product', (req, res) => {
-      productServiceProxy(req, res);
-    });
+router.post(
+  '/login',
+  (req, res) => userServiceProxy(req, res),
+);
 
-    this.app.post('/order', (req, res) => {
-      orderServiceProxy(req, res);
-    });
+router.get(
+  '/product/:productId',
+  (req, res) => productServiceProxy(req, res),
+);
 
-    this.app.get('/order', (req, res) => {
-      orderServiceProxy(req, res);
-    });
-  }
+router.get(
+  '/product',
+  (req, res) => productServiceProxy(req, res),
+);
 
-  routesConfig() {
-    this.appRoutes();
-  }
-}
+router.post(
+  '/order',
+  (req, res) => orderServiceProxy(req, res),
+);
 
-module.exports = Routes;
+router.get(
+  '/order',
+  (req, res) => orderServiceProxy(req, res),
+);
+
+module.exports = router;
