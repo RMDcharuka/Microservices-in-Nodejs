@@ -11,7 +11,7 @@ class JWT {
 
     if (!secret) {
       console.warn(
-        'Warning: JWT_SECRET is not set! Using default secret for development.'
+        'Warning: JWT_SECRET is not set! Using default secret for development.',
       );
     }
 
@@ -21,7 +21,7 @@ class JWT {
         algorithms: ['HS256'], // specify algorithm explicitly
       }).unless({
         path: publicRoutes,
-      })
+      }),
     );
   }
 }

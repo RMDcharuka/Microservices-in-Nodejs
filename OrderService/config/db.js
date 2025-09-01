@@ -20,7 +20,7 @@ class MongoDB {
             reject(err);
           } else {
             // Use DB name from env or default to 'users'
-            const dbName = process.env.MONGODB_DB_NAME || 'users';
+            const dbName = process.env.MONGODB_DB_NAME || 'orders';
             resolve([client.db(dbName), this.ObjectID, client]);
           }
         },

@@ -1,7 +1,7 @@
-const DotEnv = require('dotenv');
-
-DotEnv.config();
-
 const Server = require('./server');
 
-Server.startTheServer();
+// Create an instance of the Server class
+const server = new Server();
+
+// Call the instance method
+server.startTheServer();

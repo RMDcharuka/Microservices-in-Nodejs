@@ -6,11 +6,15 @@ module.exports = {
   },
   extends: ['eslint:recommended', 'airbnb-base'],
   plugins: ['jest'],
+  parserOptions: {
+    ecmaVersion: 12, // ES2021 is fine too
+    sourceType: 'script', // <--- Important for CommonJS
+  },
   rules: {
     'linebreak-style': ['error', 'unix'], // LF line endings
-    'no-unused-vars': 'warn', // warn instead of error
-    'class-methods-use-this': 'off', // allow class methods without 'this'
-    'no-console': 'off', // allow console.log for dev
-    'max-len': ['error', { code: 120 }], // max line length 120
+    'no-unused-vars': 'warn',
+    'class-methods-use-this': 'off',
+    'no-console': 'off',
+    'max-len': ['error', { code: 120 }],
   },
 };

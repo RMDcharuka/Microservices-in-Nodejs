@@ -45,4 +45,3 @@ redisClient.on('error', (err) => {
 
 module.exports.MongoDB = new MongoDB();
 module.exports.redisClient = redisClient;
-
