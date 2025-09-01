@@ -1,17 +1,16 @@
 module.exports = {
   env: {
     node: true,
-    jest: true,
     es2021: true,
+    jest: true,
   },
-  extends: ['airbnb-base'],
+  extends: ['eslint:recommended', 'airbnb-base'],
   plugins: ['jest'],
   rules: {
-    'no-tabs': 'error',
-    'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-    'no-underscore-dangle': 'off',
-    'no-async-promise-executor': 'error',
-    'prefer-promise-reject-errors': 'error',
-    'no-useless-catch': 'error',
+    'linebreak-style': ['error', 'unix'], // LF line endings
+    'no-unused-vars': 'warn', // warn instead of error
+    'class-methods-use-this': 'off', // allow class methods without 'this'
+    'no-console': 'off', // allow console.log for dev
+    'max-len': ['error', { code: 120 }], // max line length 120
   },
 };

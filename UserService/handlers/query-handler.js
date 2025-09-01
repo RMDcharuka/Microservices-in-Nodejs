@@ -5,81 +5,43 @@ class QueryHandler {
     this.Mongodb = Mongodb;
   }
 
-  login(data) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const [DB, ObjectID, DBClient] = await this.Mongodb.onConnect();
-        DB.collection('user').findOneAndUpdate(
-          data,
-          {
-            $set: {
-              online: 'Y',
-            },
-          },
-          (error, result) => {
-            DBClient.close();
-            if (error) {
-              reject(error);
-            }
-            result.lastErrorObject.updatedExisting ? resolve(result.value._id) : resolve(null);
-          },
-        );
-      } catch (error) {
-        reject(error);
-      }
-    });
+  async login(data) {
+    const [DB, , DBClient] = await this.Mongodb.onConnect();
+    const result = await DB.collection('user').findOneAndUpdate(
+      data,
+      { $set: { online: 'Y' } },
+      { returnDocument: 'after' },
+    );
+    DBClient.close();
+    return result.value ? result.value.id : null;
   }
 
-  getUserDetails(userId) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const [DB, ObjectID, DBClient] = await this.Mongodb.onConnect();
-        DB.collection('user').aggregate([
-          {
-            $match: { _id: ObjectID(userId) },
+  async getUserDetails(userId) {
+    const [DB, ObjectID, DBClient] = await this.Mongodb.onConnect();
+    const result = await DB.collection('user')
+      .aggregate([
+        { $match: { _id: ObjectID(userId) } },
+        {
+          $project: {
+            name: true,
+            email: true,
+            lastname: true,
+            online: true,
+            id: '$_id', // renamed _id to id
+            _id: false,
           },
-          {
-            $project: {
-              name: true,
-              email: true,
-              lastname: true,
-              online: true,
-              _id: false,
-              id: '$_id',
-            },
-          },
-        ]).toArray((error, result) => {
-          DBClient.close();
-          if (error) {
-            reject(error);
-          }
-          let userDetails = null;
-          if (result.length > 0) {
-            userDetails = result[0];
-          }
-          resolve(userDetails);
-        });
-      } catch (error) {
-        reject(error);
-      }
-    });
+        },
+      ])
+      .toArray();
+    DBClient.close();
+    return result.length > 0 ? result[0] : null;
   }
 
-  registerUser(data) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const [DB, ObjectID, DBClient] = await this.Mongodb.onConnect();
-        DB.collection('user').insertOne(data, (err, result) => {
-          DBClient.close();
-          if (err) {
-            reject(err);
-          }
-          resolve(result);
-        });
-      } catch (error) {
-        reject(error);
-      }
-    });
+  async registerUser(data) {
+    const [DB, , DBClient] = await this.Mongodb.onConnect();
+    const result = await DB.collection('user').insertOne(data);
+    DBClient.close();
+    return result;
   }
 }
 

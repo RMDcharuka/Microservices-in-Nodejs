@@ -4,14 +4,15 @@
   "description": "This is a service to manage Users API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "lint": "eslint"
+    "start": "node server.js",
+    "lint": "eslint . --ext .js",
+    "test": "jest --coverage",
+    "pretest": "npm run lint"
   },
   "author": "Iosys Pvt Ltd",
   "license": "MIT",
   "dependencies": {
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "dotenv": "^7.0.0",
@@ -21,8 +22,11 @@
     "redis": "^2.8.0"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.17.1"
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jest": "^29.0.1",
+    "jest": "^30.1.1",
+    "supertest": "^7.1.4"
   }
 }
